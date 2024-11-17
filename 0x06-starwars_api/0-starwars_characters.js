@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/node
 /**
  * This script prints all characters of a Star Wars movie.
  * The first positional argument is the Movie ID (e.g., 3 = "Return of the Jedi").
