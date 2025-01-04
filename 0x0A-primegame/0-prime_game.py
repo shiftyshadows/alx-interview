@@ -5,7 +5,34 @@
 
 
 def isWinner(x, nums):
+    """
+       Determines the winner of multiple rounds of a game
+       where Maria and Ben take turns picking prime numbers
+       and removing them and their multiples from a set of
+       consecutive integers starting from 1 up to and including n.
+
+       Parameters:
+        x (int): The number of rounds.
+        nums (list of int): An array of n values, where each
+                            n represents the upper limit of the
+                            set for each round.
+
+       Returns:
+        str: The name of the player that won the most
+             rounds ("Maria" or "Ben").
+        If the winner cannot be determined, returns None.
+    """
     def sieve(n):
+        """
+           Generates all prime numbers up to n using the Sieve
+           of Eratosthenes.
+
+           Parameters:
+            n (int): The upper limit to generate prime numbers.
+
+           Returns:
+            list of int: A list of prime numbers up to n.
+        """
         is_prime = [True] * (n + 1)
         p = 2
         while (p * p <= n):
@@ -17,6 +44,17 @@ def isWinner(x, nums):
         return prime_numbers
 
     def play_game(n, primes):
+        """
+           Simulates a single round of the game.
+
+           Parameters:
+            n (int): The upper limit of the set of consecutive integers.
+            primes (list of int): A list of prime numbers up to
+                                  the maximum n in the input list.
+
+           Returns:
+            int: 0 if Maria wins, 1 if Ben wins.
+        """
         remaining = set(range(1, n + 1))
         turn = 0  # 0 for Maria, 1 for Ben
         while True:
