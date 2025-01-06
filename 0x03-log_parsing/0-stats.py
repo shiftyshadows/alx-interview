@@ -31,7 +31,9 @@ def process_line(line):
     global file_size
 
     # Regex to match the required format
-    pattern = r'^(\S+) - \[(.*?)\] \"GET /projects/260 HTTP/1.1\" (\d{3}) (\d+)$'
+    pattern = (
+        r'^(\S+) - \[(.*?)\] "GET /projects/260 HTTP/1\.1" (\d{3}) (\d+)$'
+    )
     match = re.match(pattern, line)
 
     if not match:
@@ -52,8 +54,10 @@ def signal_handler(sig, frame):
     print_metrics()
     sys.exit(0)
 
+
 # Register signal handler for Ctrl + C
 signal.signal(signal.SIGINT, signal_handler)
+
 
 try:
     for line in sys.stdin:
