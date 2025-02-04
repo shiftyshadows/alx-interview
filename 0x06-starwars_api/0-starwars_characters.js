@@ -1,75 +1,43 @@
 #!/usr/bin/node
 /**
- * This script prints all characters of a Star Wars movie.
- * The first positional argument is the Movie ID (e.g., 3 = "Return of the Jedi").
- * One character name is displayed per line in the same order as the "characters" list
- * from the SWAPI /films/ endpoint.
+ * Star Wars Movie Characters Script
+ *
+ * This script takes a movie ID as a positional argument and prints all
+ * character names from the given Star Wars movie in the same order as in the
+ * API.
+ *
+ * Usage:
+ *    node starwars_characters.js <movie_id>
+ *
+ * Requirements:
+ *    - request-promise (npm install request-promise)
+ *
+ * Example:
+ *    node starwars_characters.js 3
+ *    (Outputs all characters from "Return of the Jedi")
  */
-
 const request = require('request');
+const API_URL = 'https://swapi-api.hbtn.io/api';
 
-// Function to fetch and print movie characters
-const getMovieCharacters = (movieId) => {
-  const filmUrl = `https://swapi.dev/api/films/${movieId}/`;
-
-  request(filmUrl, (error, response, body) => {
-    if (error) {
-      console.error('Error: Unable to fetch movie data.', error.message);
-      return;
+if (process.argv.length > 2) {
+  request(`${API_URL}/films/${process.argv[2]}/`, (err, _, body) => {
+    if (err) {
+      console.log(err);
     }
+    const charactersURL = JSON.parse(body).characters;
+    const charactersName = charactersURL.map(
+      url => new Promise((resolve, reject) => {
+        request(url, (promiseErr, __, charactersReqBody) => {
+          if (promiseErr) {
+            reject(promiseErr);
+          }
+          resolve(JSON.parse(charactersReqBody).name);
+        });
+      }));
 
-    if (response.statusCode !== 200) {
-      console.error(`Error: Movie not found. HTTP Status: ${response.statusCode}`);
-      return;
-    }
-
-    const movieData = JSON.parse(body);
-    const characterUrls = movieData.characters || [];
-
-    if (characterUrls.length === 0) {
-      console.log('No characters found for this movie.');
-      return;
-    }
-
-    // Fetch and print each character's name
-    let completedRequests = 0;
-    characterUrls.forEach((url) => {
-      request(url, (charError, charResponse, charBody) => {
-        if (charError) {
-          console.error('Error: Unable to fetch character data.', charError.message);
-          return;
-        }
-
-        if (charResponse.statusCode === 200) {
-          const characterData = JSON.parse(charBody);
-          console.log(characterData.name);
-        } else {
-          console.error(`Error: Failed to fetch character. HTTP Status: ${charResponse.statusCode}`);
-        }
-
-        completedRequests++;
-        // Ensure all requests are completed before exiting
-        if (completedRequests === characterUrls.length) {
-          process.exit(0);
-        }
-      });
-    });
+    Promise.all(charactersName)
+      .then(names => console.log(names.join('\n')))
+      .catch(allErr => console.log(allErr));
   });
-};
-
-// Main script execution
-const args = process.argv.slice(2);
-
-if (args.length !== 1) {
-  console.error('Usage: ./star_wars_characters.js <Movie ID>');
-  process.exit(1);
 }
 
-const movieId = parseInt(args[0], 10);
-
-if (isNaN(movieId)) {
-  console.error('Error: Movie ID must be an integer.');
-  process.exit(1);
-}
-
-getMovieCharacters(movieId);
